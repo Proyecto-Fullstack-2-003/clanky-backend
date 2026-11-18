@@ -1,0 +1,23 @@
+
+spring:
+  application:
+    name: carrito
+  profiles:
+    active: h2
+
+  datasource:
+    url: jdbc:h2:file:./data/clanky-carrito
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+  h2:
+    console:
+      enabled: true
+
+server:
+  port: 8083
