@@ -6,8 +6,6 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_USER: clanky
       MYSQL_PASSWORD: ${DB_PASSWORD}
-    ports:
-      - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
@@ -40,8 +38,7 @@ services:
       CLIENTE_PASSWORD: ${CLIENTE_PASSWORD}
       KEYS_DIRECTORY: /app/data/keys
       FRONTEND_ORIGINS: ${FRONTEND_ORIGINS}
-    ports:
-      - "8081:8081"
+      COOKIE_SECURE: "false"
     volumes:
       - usuarios_keys:/app/data/keys
 
@@ -70,8 +67,7 @@ services:
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
       CLIENTE_PASSWORD: ${CLIENTE_PASSWORD}
       FRONTEND_ORIGINS: ${FRONTEND_ORIGINS}
-    ports:
-      - "8082:8082"
+      COOKIE_SECURE: "false"
 
   carrito:
     build:
@@ -97,9 +93,6 @@ services:
       AUTH_JWKS_URL: http://usuarios:8081/api/auth/jwks
       CATALOGO_URL: http://catalogo:8082
       INTERNAL_API_KEY: ${INTERNAL_API_KEY}
-    ports:
-      - "8083:8083"
-
 
   gateway:
     build:
@@ -115,8 +108,17 @@ services:
         condition: service_started
       carrito:
         condition: service_started
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      gateway:
+        condition: service_started
     ports:
-      - "8080:8080"
+      - "80:80"
 
 volumes:
   mysql_data:

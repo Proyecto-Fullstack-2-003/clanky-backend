@@ -16,4 +16,4 @@ ARG MODULE
 
 COPY --from=build /workspace/${MODULE}/target/${MODULE}-1.0.0.jar app.jar
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-XX:MaxRAMPercentage=65.0", "-jar", "app.jar"]
