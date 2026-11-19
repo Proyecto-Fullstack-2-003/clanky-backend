@@ -15,12 +15,13 @@ management:
       exposure:
         include: health,info
 app:
+  swagger-url: http://localhost:8081
   issuer: ${JWT_ISSUER:clanky-usuarios}
   jwks: ${AUTH_JWKS_URL:http://localhost:8081/api/auth/jwks}
   gateway-url: ${GATEWAY_URL:http://localhost:8080}
   catalogo-url: ${CATALOGO_URL:http://localhost:8082}
   internal-key: ${INTERNAL_API_KEY:local-cambiar-clave-interna-32-caracteres}
-  allowed-origins: ${FRONTEND_ORIGINS:http://localhost:5173,http://127.0.0.1:5173}
+  allowed-origins: ${FRONTEND_ORIGINS:http://localhost:5173,http://127.0.0.1:5173,http://localhost:8081}
   admin-password: ${ADMIN_PASSWORD:Admin1234!}
   cliente-password: ${CLIENTE_PASSWORD:Cliente1234!}
   keys-directory: ${KEYS_DIRECTORY:./data/keys}

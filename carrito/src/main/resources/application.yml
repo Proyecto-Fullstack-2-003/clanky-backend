@@ -1,23 +1,27 @@
 
+
+server:
+  port: ${PORT:8083}
+
 spring:
   application:
     name: carrito
   profiles:
-    active: h2
-
-  datasource:
-    url: jdbc:h2:file:./data/clanky-carrito
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: 
-
+    default: h2
   jpa:
+    open-in-view: false
     hibernate:
       ddl-auto: update
 
-  h2:
-    console:
-      enabled: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
 
-server:
-  port: 8083
+app:
+  swagger-url: http://localhost:8083
+  issuer: ${JWT_ISSUER:clanky-usuarios}
+  jwks: ${AUTH_JWKS_URL:http://localhost:8081/api/auth/jwks}
+  catalogo-url: ${CATALOGO_URL:http://localhost:8082}
+  internal-key: ${INTERNAL_API_KEY:local-cambiar-clave-interna-32-caracteres}

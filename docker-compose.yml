@@ -1,0 +1,123 @@
+services:
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: clanky
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+
+  usuarios:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: usuarios
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      PORT: 8081
+      SPRING_PROFILES_ACTIVE: mysql
+      DB_URL: jdbc:mysql://mysql:3306/clanky_usuarios?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8
+      DB_USER: clanky
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_ISSUER: clanky-usuarios
+      AUTH_JWKS_URL: http://usuarios:8081/api/auth/jwks
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      CLIENTE_PASSWORD: ${CLIENTE_PASSWORD}
+      KEYS_DIRECTORY: /app/data/keys
+      FRONTEND_ORIGINS: ${FRONTEND_ORIGINS}
+    ports:
+      - "8081:8081"
+    volumes:
+      - usuarios_keys:/app/data/keys
+
+  catalogo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: catalogo
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      usuarios:
+        condition: service_started
+    environment:
+      PORT: 8082
+      SPRING_PROFILES_ACTIVE: mysql
+      DB_URL: jdbc:mysql://mysql:3306/clanky_catalogo?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8
+      DB_USER: clanky
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_ISSUER: clanky-usuarios
+      AUTH_JWKS_URL: http://usuarios:8081/api/auth/jwks
+      CATALOGO_URL: http://catalogo:8082
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      CLIENTE_PASSWORD: ${CLIENTE_PASSWORD}
+      FRONTEND_ORIGINS: ${FRONTEND_ORIGINS}
+    ports:
+      - "8082:8082"
+
+  carrito:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: carrito
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      usuarios:
+        condition: service_started
+      catalogo:
+        condition: service_started
+    environment:
+      PORT: 8083
+      SPRING_PROFILES_ACTIVE: mysql
+      DB_URL: jdbc:mysql://mysql:3306/clanky_carrito?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8
+      DB_USER: clanky
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_ISSUER: clanky-usuarios
+      AUTH_JWKS_URL: http://usuarios:8081/api/auth/jwks
+      CATALOGO_URL: http://catalogo:8082
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+    ports:
+      - "8083:8083"
+
+
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: gateway
+    restart: unless-stopped
+    depends_on:
+      usuarios:
+        condition: service_started
+      catalogo:
+        condition: service_started
+      carrito:
+        condition: service_started
+    ports:
+      - "8080:8080"
+
+volumes:
+  mysql_data:
+  usuarios_keys:

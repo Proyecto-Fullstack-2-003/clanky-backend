@@ -15,6 +15,7 @@ management:
       exposure:
         include: health,info
 app:
+  swagger-url: http://localhost:8082
   issuer: ${JWT_ISSUER:clanky-usuarios}
   jwks: ${AUTH_JWKS_URL:http://localhost:8081/api/auth/jwks}
   gateway-url: ${GATEWAY_URL:http://localhost:8080}

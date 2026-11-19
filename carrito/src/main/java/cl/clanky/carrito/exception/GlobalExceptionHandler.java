@@ -23,4 +23,17 @@ public class GlobalExceptionHandler {
             .status(HttpStatus.BAD_REQUEST)
             .body(respuesta);
     }
+    @ExceptionHandler(org.springframework.web.client.HttpClientErrorException.class)
+public ResponseEntity<Map<String, Object>> manejarErrorCatalogo(
+        org.springframework.web.client.HttpClientErrorException ex) {
+
+    Map<String, Object> respuesta = Map.of(
+        "status", ex.getStatusCode().value(),
+        "mensaje", ex.getStatusText()
+    );
+
+    return ResponseEntity
+        .status(ex.getStatusCode())
+        .body(respuesta);
+}
 }

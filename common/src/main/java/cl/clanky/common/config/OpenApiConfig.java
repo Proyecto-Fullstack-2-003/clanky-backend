@@ -12,7 +12,7 @@ public class OpenApiConfig {
   @Bean
   OpenAPI api(
       @Value("${spring.application.name}") String name,
-      @Value("${app.gateway-url:http://localhost:8080}") String gateway) {
+      @Value("${app.swagger-url:${app.gateway-url:http://localhost:8080}}") String serverUrl) {
     return new OpenAPI()
         .info(
             new Info()
@@ -22,7 +22,7 @@ public class OpenApiConfig {
                     "API de Clanky Disquería. Para probar endpoints protegidos: 1) POST"
                         + " /api/auth/login, 2) copia accessToken, 3) botón Authorize y pega el"
                         + " token (sin la palabra Bearer)."))
-        .addServersItem(new Server().url(gateway))
+        .addServersItem(new Server().url(serverUrl))
         .components(
             new Components()
                 .addSecuritySchemes(

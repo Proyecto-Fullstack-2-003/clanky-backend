@@ -20,6 +20,7 @@
     <module>usuarios</module>
     <module>catalogo</module>
     <module>carrito</module>
+    <module>gateway</module>
     </modules>
   <dependencyManagement>
     <dependencies>
